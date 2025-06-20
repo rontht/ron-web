@@ -15,12 +15,16 @@ export function useApps(initialApps: AppInfo[]) {
         if (a.id === app.id) {
           if (a.order === undefined) {
             assigned = true;
-            return { ...a, status: "focused" as AppInfo["status"], order: orderCounter.current };
+            return {
+              ...a,
+              status: "focused" as AppInfo["status"],
+              order: orderCounter.current,
+            };
           }
           return { ...a, status: "focused" as AppInfo["status"] };
         }
 
-        return a.status === "focused" as AppInfo["status"]
+        return a.status === ("focused" as AppInfo["status"])
           ? { ...a, status: "running" as AppInfo["status"] }
           : a;
       });
@@ -111,6 +115,21 @@ export function useApps(initialApps: AppInfo[]) {
     });
   };
 
+  const changeFocusApp = (app: AppInfo) => {
+    setApps((prev) =>
+      prev.map((a) => {
+        if (a.id === app.id) {
+          return a.status !== "focused"
+            ? { ...a, status: "focused" as const }
+            : a;
+        }
+        return a.status === "focused"
+          ? { ...a, status: "running" as const }
+          : a;
+      })
+    );
+  };
+
   const updatePosition = (id: string, pos: { x: number; y: number }) => {
     setApps((prev) =>
       prev.map((a) => (a.id === id ? { ...a, position: pos } : a))
@@ -124,5 +143,6 @@ export function useApps(initialApps: AppInfo[]) {
     minimizeApp,
     focusApp,
     updatePosition,
+    changeFocusApp,
   };
 }

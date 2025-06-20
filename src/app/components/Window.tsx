@@ -3,26 +3,34 @@
 import { useRef, useState, useEffect } from "react";
 
 interface WindowProps {
+  id: string;
   title: string;
   onClose: () => void;
   onMinimize?: () => void;
+  onFocus?: (id: string) => void;
   isFocused?: boolean;
   children: React.ReactNode;
   position?: { x: number; y: number };
   onDragEnd?: (pos: { x: number; y: number }) => void;
+  width?: number;
+  height?: number;
 }
 
 export default function Window({
+  id,
   title,
   onClose,
   onMinimize,
+  onFocus,
   isFocused,
   children,
   position,
   onDragEnd,
+  width,
+  height,
 }: WindowProps) {
   const windowRef = useRef<HTMLDivElement>(null);
-  const positionRef = useRef(position || { x: 300, y: 300 });
+  const positionRef = useRef(position || { x: 800, y: 300 });
   const [_, forceUpdate] = useState({});
   const offsetRef = useRef({ x: 0, y: 0 });
   const draggingRef = useRef(false);
@@ -82,27 +90,35 @@ export default function Window({
   return (
     <div
       ref={windowRef}
+      onMouseDown={() => onFocus?.(id)}
       className={`absolute w-[400px] h-[300px] bg-white rounded shadow-lg border ${
         isFocused ? "z-50" : "z-30"
       }`}
       style={{
         transform: `translate(${positionRef.current.x}px, ${positionRef.current.y}px)`,
+        width: `${width ?? 400}px`,
+        height: `${height ?? 300}px`,
       }}
     >
       {/* Title Bar */}
       <div
-        className="bg-gray-800 text-white flex items-center justify-between px-2 py-1 cursor-move select-none"
+        className={`select-none flex items-center justify-between px-2 py-1 cursor-move
+      ${
+        isFocused
+          ? "bg-gradient-to-r from-blue-600 to-blue-400 text-white"
+          : "bg-gray-500 text-gray-200"
+      }`}
         onMouseDown={handleMouseDown}
       >
-        <span className="text-sm">{title}</span>
-        <div className="flex items-center gap-2">
+        <span className="text-sm truncate">{title}</span>
+        <div className="flex items-center gap-1">
           {onMinimize && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onMinimize();
               }}
-              className="w-5 h-5 text-xs bg-yellow-500 hover:bg-yellow-400 text-white rounded flex items-center justify-center"
+              className="w-5 h-5 text-xs bg-yellow-400 hover:bg-yellow-300 text-black border border-yellow-600 rounded-sm flex items-center justify-center"
               title="Minimize"
             >
               &ndash;
@@ -113,7 +129,7 @@ export default function Window({
               e.stopPropagation();
               onClose();
             }}
-            className="w-5 h-5 text-xs bg-red-600 hover:bg-red-500 text-white rounded flex items-center justify-center"
+            className="w-5 h-5 text-xs bg-red-600 hover:bg-red-500 text-white border border-red-800 rounded-sm flex items-center justify-center"
             title="Close"
           >
             ✕
@@ -122,7 +138,7 @@ export default function Window({
       </div>
 
       {/* Content */}
-      <div className="p-3 h-[calc(100%-2.5rem)] overflow-auto">{children}</div>
+      <div className="h-[calc(100%-2.5rem)] overflow-hidden text-sm text-black">{children}</div>
     </div>
   );
 }

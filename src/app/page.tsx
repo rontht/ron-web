@@ -6,18 +6,27 @@ import Window from "./components/Window";
 
 import DesktopIcon from "./components/DesktopIcon";
 import TaskbarIcon from "./components/TaskbarIcon";
+import StartMenu from "./components/Startmenu";
 
 import { renderAppComponent } from "./components/apps/renderAppComponent";
 
 export default function Home() {
-  const { apps, openApp, closeApp, minimizeApp, focusApp, updatePosition } = useApps(initialApps);
-  
+  const {
+    apps,
+    openApp,
+    closeApp,
+    minimizeApp,
+    focusApp,
+    updatePosition,
+    changeFocusApp,
+  } = useApps(initialApps);
+
   return (
     <main
       className="h-screen w-screen bg-cover bg-center relative overflow-hidden"
       style={{ backgroundImage: `url('/images/wallpaper.jpg')` }}
     >
-      {/* Desktop Icons */}
+      {/* _________________________________________ Desktop Icons */}
       <div className="absolute top-4 left-4 space-y-4">
         {apps.map((app) => (
           <DesktopIcon
@@ -29,21 +38,28 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Render Windows for running apps */}
+      {/* _________________________________________ Render Windows for running apps */}
       {apps
         .filter((app) => app.status === "running" || app.status === "focused")
         .map((app) => {
-          const AppComponent = renderAppComponent(app.id);
+          // const AppComponent = renderAppComponent(app.id);
+          const appDef = renderAppComponent(app.id);
+          if (!appDef) return null;
+          const { Component: AppComponent, width, height } = appDef;
 
           return (
             <Window
               key={app.id}
+              id={app.id}
               title={app.label}
               position={app.position}
               onDragEnd={(pos) => updatePosition(app.id, pos)}
               onClose={() => closeApp(app)}
               onMinimize={() => minimizeApp(app)}
               isFocused={app.status === "focused"}
+              width={width}
+              height={height}
+              onFocus={() => changeFocusApp(app)}
             >
               {AppComponent ? (
                 <AppComponent />
@@ -54,16 +70,12 @@ export default function Home() {
           );
         })}
 
-      {/* Taskbar */}
+      {/* _________________________________________ Taskbar */}
       <div className="fixed bottom-0 left-0 w-full h-12 bg-gradient-to-b from-blue-600 to-blue-800 flex items-center select-none">
         {/* Start Button */}
-        <button
-          className="flex items-center justify-center bg-green-600 hover:bg-green-500 active:bg-green-700 h-full px-6 shadow-inner"
-          style={{ minWidth: "100px" }}
-        >
-          <img src="/icons/start.png" alt="Start" className="w-6 h-6 mr-2" />
-          <span className="text-white text-xl font-bold">start</span>
-        </button>
+        <StartMenu
+          onLaunchApp={(id) => openApp(apps.find((a) => a.id === id)!)}
+        />
 
         {/* Taskbar buttons container */}
         <div className="flex flex-1 overflow-x-auto h-full items-center px-4">

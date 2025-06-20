@@ -44,4 +44,18 @@ export const initialApps: AppInfo[] = [
     pinned: true,
     status: "off",
   },
+  {
+    id: "game_1",
+    icon: "/icons/camera.png",
+    label: "Blast You",
+    pinned: false,
+    status: "off",
+  },
+    {
+    id: "game_2",
+    icon: "/icons/camera.png",
+    label: "Very Cool Pirate Game",
+    pinned: false,
+    status: "off",
+  },
 ];

@@ -1,3 +1,3 @@
-export default function NetworkApp() {
-  return <div>This is the Network app.</div>;
+export default function ExplorerApp() {
+  return <div>This is the Explorer app.</div>;
 }
